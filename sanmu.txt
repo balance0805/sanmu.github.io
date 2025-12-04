@@ -57,7 +57,6 @@
       font-size: 15px;
       color: #a89383;
       font-weight: 300;
-      letter-spacing: 1px;
     }
 
     .tab-navigation {
@@ -67,13 +66,6 @@
       overflow-x: auto;
       padding: 4px;
       scrollbar-width: none;
-      /* 優化：加入黏性定位，往下滑時選單會固定在上方 */
-      position: sticky;
-      top: 10px;
-      z-index: 50;
-      background: rgba(245, 241, 237, 0.9);
-      border-radius: 16px;
-      backdrop-filter: blur(5px);
     }
 
     .tab-navigation::-webkit-scrollbar {
@@ -157,6 +149,11 @@
       gap: 16px;
     }
 
+    .menu-item-wrapper {
+      display: flex;
+      flex-direction: column;
+    }
+
     .menu-item {
       background: linear-gradient(135deg, #faf8f6 0%, #f5f1ed 100%);
       padding: 20px 16px;
@@ -164,12 +161,19 @@
       text-align: center;
       transition: all 0.3s ease;
       border: 1px solid rgba(196, 168, 144, 0.15);
+      cursor: pointer;
+      user-select: none;
     }
 
     .menu-item:hover {
       transform: translateY(-4px);
       box-shadow: 0 8px 20px rgba(139, 115, 95, 0.15);
       border-color: #c4a890;
+    }
+
+    .menu-item.expanded {
+      border-color: #c4a890;
+      background: linear-gradient(135deg, #f0ede9 0%, #ebe5df 100%);
     }
 
     .menu-item-name {
@@ -183,6 +187,36 @@
       font-size: 18px;
       color: #c4a890;
       font-weight: 600;
+    }
+
+    .menu-item-image {
+      max-height: 0;
+      overflow: hidden;
+      transition: max-height 0.4s ease, padding 0.4s ease, margin 0.4s ease;
+      border-radius: 12px;
+      margin-top: 0;
+    }
+
+    .menu-item-image.show {
+      max-height: 400px;
+      margin-top: 12px;
+      padding: 12px;
+      background: rgba(255, 255, 255, 0.5);
+    }
+
+    .menu-item-image img {
+      width: 100%;
+      height: auto;
+      border-radius: 8px;
+      display: block;
+      box-shadow: 0 4px 12px rgba(139, 115, 95, 0.15);
+    }
+
+    .no-image-text {
+      color: #a89383;
+      font-size: 14px;
+      padding: 20px;
+      text-align: center;
     }
 
     .info-card {
@@ -309,195 +343,21 @@
     <h1 id="store-name">SANMU 三木</h1>
     <p>澎湖 - 島嶼飲室 - 療癒小店</p>
    </header>
-   <nav class="tab-navigation" role="navigation" aria-label="主選單">
-     <button class="tab-btn active" data-target="pricing" onclick="switchTab('pricing')" aria-label="切換到價目表頁面">💰 價目表</button> 
-     <button class="tab-btn" data-target="rules" onclick="switchTab('rules')" aria-label="切換到用餐須知頁面">📋 用餐須知</button> 
-     <button class="tab-btn" data-target="qa" onclick="switchTab('qa')" aria-label="切換到常見問題頁面">❓ 常見問題</button>
+   <nav class="tab-navigation" role="navigation" aria-label="主選單"><button class="tab-btn active" onclick="switchTab('pricing')" aria-label="切換到價目表頁面">💰 價目表</button> <button class="tab-btn" onclick="switchTab('rules')" aria-label="切換到用餐須知頁面">📋 用餐須知</button> <button class="tab-btn" onclick="switchTab('qa')" aria-label="切換到常見問題頁面">❓ 常見問題</button>
    </nav>
    <main>
     <div id="pricing" class="tab-content active">
      <section class="menu-section">
       <h2 class="section-title"><span class="section-icon">🥣</span> 優格碗類</h2>
-      <div class="menu-grid">
-       <article class="menu-item">
-        <div class="menu-item-name">
-         海島莓果能量碗
-        </div>
-        <div class="menu-item-price">
-         NT$ 150
-        </div>
-       </article>
-       <article class="menu-item">
-        <div class="menu-item-name">
-         粉紅夕陽碗
-        </div>
-        <div class="menu-item-price">
-         NT$ 150
-        </div>
-       </article>
-       <article class="menu-item">
-        <div class="menu-item-name">
-         濃郁可可碗
-        </div>
-        <div class="menu-item-price">
-         NT$ 150
-        </div>
-       </article>
-      </div>
+      <div class="menu-grid" id="yogurt-grid"></div>
      </section>
      <section class="menu-section">
       <h2 class="section-title"><span class="section-icon">🥤</span> 飲料類</h2>
-      <div class="menu-grid">
-       <article class="menu-item">
-        <div class="menu-item-name">
-         莓果優酪飲
-        </div>
-        <div class="menu-item-price">
-         NT$ 130
-        </div>
-       </article>
-       <article class="menu-item">
-        <div class="menu-item-name">
-         可可鮮奶
-        </div>
-        <div class="menu-item-price">
-         NT$ 120
-        </div>
-       </article>
-       <article class="menu-item">
-        <div class="menu-item-name">
-         熱可可
-        </div>
-        <div class="menu-item-price">
-         NT$ 130
-        </div>
-       </article>
-       <article class="menu-item">
-        <div class="menu-item-name">
-         抹茶鮮奶
-        </div>
-        <div class="menu-item-price">
-         NT$ 120
-        </div>
-       </article>
-       <article class="menu-item">
-        <div class="menu-item-name">
-         熱抹茶
-        </div>
-        <div class="menu-item-price">
-         NT$ 130
-        </div>
-       </article>
-       <article class="menu-item">
-        <div class="menu-item-name">
-         桑葚鮮奶
-        </div>
-        <div class="menu-item-price">
-         NT$ 120
-        </div>
-       </article>
-       <article class="menu-item">
-        <div class="menu-item-name">
-         鍋煮鮮奶茶
-        </div>
-        <div class="menu-item-price">
-         NT$ 130
-        </div>
-       </article>
-       <article class="menu-item">
-        <div class="menu-item-name">
-         桑葚果粒冰茶
-        </div>
-        <div class="menu-item-price">
-         NT$ 100
-        </div>
-       </article>
-       <article class="menu-item">
-        <div class="menu-item-name">
-         水果氣泡水
-        </div>
-        <div class="menu-item-price">
-         NT$ 120
-        </div>
-       </article>
-       <article class="menu-item">
-        <div class="menu-item-name">
-         梅汁氣泡水
-        </div>
-        <div class="menu-item-price">
-         NT$ 100
-        </div>
-       </article>
-       <article class="menu-item">
-        <div class="menu-item-name">
-         抹茶檸檬氣泡水
-        </div>
-        <div class="menu-item-price">
-         NT$ 120
-        </div>
-       </article>
-      </div>
+      <div class="menu-grid" id="drinks-grid"></div>
      </section>
      <section class="menu-section">
       <h2 class="section-title"><span class="section-icon">🍷</span> 酒精類</h2>
-      <div class="menu-grid">
-       <article class="menu-item">
-        <div class="menu-item-name">
-         柚香 SODA
-        </div>
-        <div class="menu-item-price">
-         NT$ 100
-        </div>
-       </article>
-       <article class="menu-item">
-        <div class="menu-item-name">
-         梅酒 SODA
-        </div>
-        <div class="menu-item-price">
-         NT$ 100
-        </div>
-       </article>
-       <article class="menu-item">
-        <div class="menu-item-name">
-         大人味西西里
-        </div>
-        <div class="menu-item-price">
-         NT$ 200
-        </div>
-       </article>
-       <article class="menu-item">
-        <div class="menu-item-name">
-         Double 威士忌梅酒
-        </div>
-        <div class="menu-item-price">
-         NT$ 200
-        </div>
-       </article>
-       <article class="menu-item">
-        <div class="menu-item-name">
-         綠茶梅酒
-        </div>
-        <div class="menu-item-price">
-         NT$ 150
-        </div>
-       </article>
-       <article class="menu-item">
-        <div class="menu-item-name">
-         紅茶梅酒
-        </div>
-        <div class="menu-item-price">
-         NT$ 150
-        </div>
-       </article>
-       <article class="menu-item">
-        <div class="menu-item-name">
-         茉荔酒
-        </div>
-        <div class="menu-item-price">
-         NT$ 150
-        </div>
-       </article>
-      </div>
+      <div class="menu-grid" id="alcohol-grid"></div>
      </section>
     </div>
     <div id="rules" class="tab-content">
@@ -507,7 +367,7 @@
        最後點餐時間：21:00</p>
      </article>
      <article class="info-card">
-      <h3>🍽️ 點餐須知</h3>
+      <h3>📝 點餐須知</h3>
       <p style="margin-bottom: 0;">選好餐點請至櫃檯點餐結帳。</p>
      </article>
      <article class="info-card">
@@ -588,8 +448,131 @@
     const defaultConfig = {
       store_name: 'SANMU 三木',
       instagram_link: 'https://www.instagram.com/sanmu_dw57?igsh=MTRwbGJqNHU1Z2dlcQ==',
-      line_link: 'https://line.me'
+      line_link: 'https://line.me',
+      img_海島莓果能量碗: '',
+      img_粉紅夕陽碗: '',
+      img_濃郁可可碗: '',
+      img_莓果優酪飲: '',
+      img_可可鮮奶: '',
+      img_熱可可: '',
+      img_抹茶鮮奶: '',
+      img_熱抹茶: '',
+      img_桑葚鮮奶: '',
+      img_鍋煮鮮奶茶: '',
+      img_桑葚果粒冰茶: '',
+      img_水果氣泡水: '',
+      img_梅汁氣泡水: '',
+      img_抹茶檸檬氣泡水: '',
+      img_柚香SODA: '',
+      img_梅酒SODA: '',
+      img_大人味西西里: '',
+      img_Double威士忌梅酒: '',
+      img_綠茶梅酒: '',
+      img_紅茶梅酒: '',
+      img_茉荔酒: ''
     };
+
+    const menuData = {
+      yogurt: [
+        { name: '海島莓果能量碗', price: 'NT$ 150', key: 'img_海島莓果能量碗' },
+        { name: '粉紅夕陽碗', price: 'NT$ 150', key: 'img_粉紅夕陽碗' },
+        { name: '濃郁可可碗', price: 'NT$ 150', key: 'img_濃郁可可碗' }
+      ],
+      drinks: [
+        { name: '莓果優酪飲', price: 'NT$ 130', key: 'img_莓果優酪飲' },
+        { name: '可可鮮奶', price: 'NT$ 120', key: 'img_可可鮮奶' },
+        { name: '熱可可', price: 'NT$ 130', key: 'img_熱可可' },
+        { name: '抹茶鮮奶', price: 'NT$ 120', key: 'img_抹茶鮮奶' },
+        { name: '熱抹茶', price: 'NT$ 130', key: 'img_熱抹茶' },
+        { name: '桑葚鮮奶', price: 'NT$ 120', key: 'img_桑葚鮮奶' },
+        { name: '鍋煮鮮奶茶', price: 'NT$ 130', key: 'img_鍋煮鮮奶茶' },
+        { name: '桑葚果粒冰茶', price: 'NT$ 100', key: 'img_桑葚果粒冰茶' },
+        { name: '水果氣泡水', price: 'NT$ 120', key: 'img_水果氣泡水' },
+        { name: '梅汁氣泡水', price: 'NT$ 100', key: 'img_梅汁氣泡水' },
+        { name: '抹茶檸檬氣泡水', price: 'NT$ 120', key: 'img_抹茶檸檬氣泡水' }
+      ],
+      alcohol: [
+        { name: '柚香 SODA', price: 'NT$ 100', key: 'img_柚香SODA' },
+        { name: '梅酒 SODA', price: 'NT$ 100', key: 'img_梅酒SODA' },
+        { name: '大人味西西里', price: 'NT$ 200', key: 'img_大人味西西里' },
+        { name: 'Double 威士忌梅酒', price: 'NT$ 200', key: 'img_Double威士忌梅酒' },
+        { name: '綠茶梅酒', price: 'NT$ 150', key: 'img_綠茶梅酒' },
+        { name: '紅茶梅酒', price: 'NT$ 150', key: 'img_紅茶梅酒' },
+        { name: '茉荔酒', price: 'NT$ 150', key: 'img_茉荔酒' }
+      ]
+    };
+
+    let currentExpandedItem = null;
+
+    function createMenuItem(item, imageUrl) {
+      const wrapper = document.createElement('div');
+      wrapper.className = 'menu-item-wrapper';
+      
+      const menuItem = document.createElement('article');
+      menuItem.className = 'menu-item';
+      menuItem.innerHTML = `
+        <div class="menu-item-name">${item.name}</div>
+        <div class="menu-item-price">${item.price}</div>
+      `;
+
+      const imageContainer = document.createElement('div');
+      imageContainer.className = 'menu-item-image';
+      
+      if (imageUrl && imageUrl.trim() !== '') {
+        const img = document.createElement('img');
+        img.src = imageUrl;
+        img.alt = item.name;
+        img.onerror = function() {
+          imageContainer.innerHTML = '<div class="no-image-text">圖片載入失敗</div>';
+        };
+        imageContainer.appendChild(img);
+      } else {
+        imageContainer.innerHTML = '<div class="no-image-text">尚未設定圖片</div>';
+      }
+
+      menuItem.addEventListener('click', function() {
+        if (currentExpandedItem && currentExpandedItem !== imageContainer) {
+          currentExpandedItem.classList.remove('show');
+          currentExpandedItem.previousElementSibling.classList.remove('expanded');
+        }
+
+        const isExpanded = imageContainer.classList.contains('show');
+        imageContainer.classList.toggle('show');
+        menuItem.classList.toggle('expanded');
+
+        currentExpandedItem = isExpanded ? null : imageContainer;
+      });
+
+      wrapper.appendChild(menuItem);
+      wrapper.appendChild(imageContainer);
+      
+      return wrapper;
+    }
+
+    function renderMenuItems(config) {
+      const yogurtGrid = document.getElementById('yogurt-grid');
+      const drinksGrid = document.getElementById('drinks-grid');
+      const alcoholGrid = document.getElementById('alcohol-grid');
+
+      yogurtGrid.innerHTML = '';
+      drinksGrid.innerHTML = '';
+      alcoholGrid.innerHTML = '';
+
+      menuData.yogurt.forEach(item => {
+        const imageUrl = config[item.key] || defaultConfig[item.key];
+        yogurtGrid.appendChild(createMenuItem(item, imageUrl));
+      });
+
+      menuData.drinks.forEach(item => {
+        const imageUrl = config[item.key] || defaultConfig[item.key];
+        drinksGrid.appendChild(createMenuItem(item, imageUrl));
+      });
+
+      menuData.alcohol.forEach(item => {
+        const imageUrl = config[item.key] || defaultConfig[item.key];
+        alcoholGrid.appendChild(createMenuItem(item, imageUrl));
+      });
+    }
 
     function switchTab(tabName) {
       const tabs = document.querySelectorAll('.tab-content');
@@ -605,17 +588,27 @@
       
       document.getElementById(tabName).classList.add('active');
       
-      // 使用 data-target 來查找按鈕，更穩定
-      const activeButton = document.querySelector(`.tab-btn[data-target="${tabName}"]`);
+      const activeButton = Array.from(buttons).find(btn => 
+        btn.textContent.includes(getTabLabel(tabName))
+      );
       if (activeButton) {
         activeButton.classList.add('active');
-      } else {
-        // Fallback for footer button or if data-target is missing
-        const fallbackBtn = Array.from(buttons).find(btn => 
-           btn.getAttribute('onclick').includes(tabName) && !btn.classList.contains('active')
-        );
-        if(fallbackBtn) fallbackBtn.classList.add('active');
       }
+
+      if (currentExpandedItem) {
+        currentExpandedItem.classList.remove('show');
+        currentExpandedItem.previousElementSibling.classList.remove('expanded');
+        currentExpandedItem = null;
+      }
+    }
+
+    function getTabLabel(tabName) {
+      const labels = {
+        'pricing': '價目表',
+        'rules': '用餐須知',
+        'qa': '常見問題'
+      };
+      return labels[tabName] || '';
     }
 
     async function onConfigChange(config) {
@@ -626,6 +619,8 @@
       document.getElementById('store-name').textContent = storeName;
       document.getElementById('instagram-btn').href = instagramLink;
       document.getElementById('line-btn').href = lineLink;
+
+      renderMenuItems(config);
     }
 
     function mapToCapabilities(config) {
@@ -641,7 +636,28 @@
       return new Map([
         ['store_name', config.store_name || defaultConfig.store_name],
         ['instagram_link', config.instagram_link || defaultConfig.instagram_link],
-        ['line_link', config.line_link || defaultConfig.line_link]
+        ['line_link', config.line_link || defaultConfig.line_link],
+        ['img_海島莓果能量碗', config.img_海島莓果能量碗 || defaultConfig.img_海島莓果能量碗],
+        ['img_粉紅夕陽碗', config.img_粉紅夕陽碗 || defaultConfig.img_粉紅夕陽碗],
+        ['img_濃郁可可碗', config.img_濃郁可可碗 || defaultConfig.img_濃郁可可碗],
+        ['img_莓果優酪飲', config.img_莓果優酪飲 || defaultConfig.img_莓果優酪飲],
+        ['img_可可鮮奶', config.img_可可鮮奶 || defaultConfig.img_可可鮮奶],
+        ['img_熱可可', config.img_熱可可 || defaultConfig.img_熱可可],
+        ['img_抹茶鮮奶', config.img_抹茶鮮奶 || defaultConfig.img_抹茶鮮奶],
+        ['img_熱抹茶', config.img_熱抹茶 || defaultConfig.img_熱抹茶],
+        ['img_桑葚鮮奶', config.img_桑葚鮮奶 || defaultConfig.img_桑葚鮮奶],
+        ['img_鍋煮鮮奶茶', config.img_鍋煮鮮奶茶 || defaultConfig.img_鍋煮鮮奶茶],
+        ['img_桑葚果粒冰茶', config.img_桑葚果粒冰茶 || defaultConfig.img_桑葚果粒冰茶],
+        ['img_水果氣泡水', config.img_水果氣泡水 || defaultConfig.img_水果氣泡水],
+        ['img_梅汁氣泡水', config.img_梅汁氣泡水 || defaultConfig.img_梅汁氣泡水],
+        ['img_抹茶檸檬氣泡水', config.img_抹茶檸檬氣泡水 || defaultConfig.img_抹茶檸檬氣泡水],
+        ['img_柚香SODA', config.img_柚香SODA || defaultConfig.img_柚香SODA],
+        ['img_梅酒SODA', config.img_梅酒SODA || defaultConfig.img_梅酒SODA],
+        ['img_大人味西西里', config.img_大人味西西里 || defaultConfig.img_大人味西西里],
+        ['img_Double威士忌梅酒', config.img_Double威士忌梅酒 || defaultConfig.img_Double威士忌梅酒],
+        ['img_綠茶梅酒', config.img_綠茶梅酒 || defaultConfig.img_綠茶梅酒],
+        ['img_紅茶梅酒', config.img_紅茶梅酒 || defaultConfig.img_紅茶梅酒],
+        ['img_茉荔酒', config.img_茉荔酒 || defaultConfig.img_茉荔酒]
       ]);
     }
 
@@ -653,6 +669,8 @@
         mapToEditPanelValues
       });
     }
+
+    renderMenuItems(defaultConfig);
   </script>
- </body>
+ <script>(function(){function c(){var b=a.contentDocument||a.contentWindow.document;if(b){var d=b.createElement('script');d.innerHTML="window.__CF$cv$params={r:'9a89768f255da34f',t:'MTc2NDgzMjAwNy4wMDAwMDA='};var a=document.createElement('script');a.nonce='';a.src='/cdn-cgi/challenge-platform/scripts/jsd/main.js';document.getElementsByTagName('head')[0].appendChild(a);";b.getElementsByTagName('head')[0].appendChild(d)}}if(document.body){var a=document.createElement('iframe');a.height=1;a.width=1;a.style.position='absolute';a.style.top=0;a.style.left=0;a.style.border='none';a.style.visibility='hidden';document.body.appendChild(a);if('loading'!==document.readyState)c();else if(window.addEventListener)document.addEventListener('DOMContentLoaded',c);else{var e=document.onreadystatechange||function(){};document.onreadystatechange=function(b){e(b);'loading'!==document.readyState&&(document.onreadystatechange=e,c())}}}})();</script></body>
 </html>
