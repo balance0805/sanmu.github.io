@@ -1,0 +1,350 @@
+<!doctype html>
+<html lang="zh-TW">
+ <head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>飲品資訊</title>
+  <script src="/_sdk/element_sdk.js"></script>
+  <style>
+    body {
+      box-sizing: border-box;
+    }
+    
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    html, body {
+      height: 100%;
+    }
+
+    body {
+      font-family: 'Noto Sans TC', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+      background: linear-gradient(135deg, #f5f1ed 0%, #ede6e0 100%);
+      color: #5a4a3a;
+      width: 100%;
+      min-height: 100%;
+      overflow-x: hidden;
+    }
+
+    .app-container {
+      width: 100%;
+      min-height: 100%;
+      padding: 24px 16px;
+    }
+
+    .header {
+      text-align: center;
+      padding: 32px 20px;
+      background: rgba(255, 255, 255, 0.6);
+      backdrop-filter: blur(10px);
+      border-radius: 24px;
+      margin-bottom: 24px;
+      box-shadow: 0 4px 20px rgba(139, 115, 95, 0.08);
+    }
+
+    .header h1 {
+      font-size: 32px;
+      font-weight: 600;
+      color: #8b7360;
+      margin-bottom: 8px;
+      letter-spacing: 2px;
+    }
+
+    .header p {
+      font-size: 15px;
+      color: #a89383;
+      font-weight: 300;
+      letter-spacing: 1px;
+    }
+
+    .tab-navigation {
+      display: flex;
+      gap: 12px;
+      margin-bottom: 24px;
+      overflow-x: auto;
+      padding: 4px;
+      scrollbar-width: none;
+      /* 優化：加入黏性定位，往下滑時選單會固定在上方 */
+      position: sticky;
+      top: 10px;
+      z-index: 50;
+      background: rgba(245, 241, 237, 0.9);
+      border-radius: 16px;
+      backdrop-filter: blur(5px);
+    }
+
+    .tab-navigation::-webkit-scrollbar {
+      display: none;
+    }
+
+    .tab-btn {
+      flex: 1;
+      min-width: 100px;
+      padding: 14px 20px;
+      background: rgba(255, 255, 255, 0.7);
+      border: 2px solid transparent;
+      border-radius: 16px;
+      color: #8b7360;
+      font-size: 15px;
+      font-weight: 500;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      white-space: nowrap;
+    }
+
+    .tab-btn:hover {
+      background: rgba(255, 255, 255, 0.9);
+      transform: translateY(-2px);
+    }
+
+    .tab-btn.active {
+      background: #c4a890;
+      color: white;
+      border-color: #c4a890;
+      box-shadow: 0 4px 12px rgba(196, 168, 144, 0.3);
+    }
+
+    .tab-content {
+      display: none;
+      animation: fadeIn 0.4s ease;
+    }
+
+    .tab-content.active {
+      display: block;
+    }
+
+    @keyframes fadeIn {
+      from {
+        opacity: 0;
+        transform: translateY(10px);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    .menu-section {
+      background: rgba(255, 255, 255, 0.8);
+      border-radius: 20px;
+      padding: 28px;
+      margin-bottom: 20px;
+      box-shadow: 0 4px 16px rgba(139, 115, 95, 0.1);
+    }
+
+    .section-title {
+      font-size: 22px;
+      font-weight: 600;
+      color: #8b7360;
+      margin-bottom: 20px;
+      padding-bottom: 12px;
+      border-bottom: 2px solid #e8ddd4;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .section-icon {
+      font-size: 24px;
+    }
+
+    .menu-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
+      gap: 16px;
+    }
+
+    .menu-item {
+      background: linear-gradient(135deg, #faf8f6 0%, #f5f1ed 100%);
+      padding: 20px 16px;
+      border-radius: 16px;
+      text-align: center;
+      transition: all 0.3s ease;
+      border: 1px solid rgba(196, 168, 144, 0.15);
+    }
+
+    .menu-item:hover {
+      transform: translateY(-4px);
+      box-shadow: 0 8px 20px rgba(139, 115, 95, 0.15);
+      border-color: #c4a890;
+    }
+
+    .menu-item-name {
+      font-size: 16px;
+      color: #5a4a3a;
+      font-weight: 500;
+      margin-bottom: 8px;
+    }
+
+    .menu-item-price {
+      font-size: 18px;
+      color: #c4a890;
+      font-weight: 600;
+    }
+
+    .info-card {
+      background: rgba(255, 255, 255, 0.8);
+      border-radius: 20px;
+      padding: 28px;
+      margin-bottom: 20px;
+      box-shadow: 0 4px 16px rgba(139, 115, 95, 0.1);
+    }
+
+    .info-card h3 {
+      font-size: 20px;
+      color: #8b7360;
+      margin-bottom: 16px;
+      font-weight: 600;
+    }
+
+    .info-card p, .info-card li {
+      font-size: 15px;
+      line-height: 1.8;
+      color: #6a5a4a;
+      margin-bottom: 12px;
+    }
+
+    .info-card ul {
+      list-style: none;
+      padding-left: 0;
+    }
+
+    .info-card li::before {
+      content: "・";
+      color: #c4a890;
+      font-weight: bold;
+      margin-right: 8px;
+    }
+
+    .qa-item {
+      background: linear-gradient(135deg, #faf8f6 0%, #f5f1ed 100%);
+      border-radius: 16px;
+      padding: 20px;
+      margin-bottom: 16px;
+      border-left: 4px solid #c4a890;
+    }
+
+    .qa-question {
+      font-size: 16px;
+      font-weight: 600;
+      color: #8b7360;
+      margin-bottom: 10px;
+    }
+
+    .qa-answer {
+      font-size: 15px;
+      color: #6a5a4a;
+      line-height: 1.7;
+    }
+
+    .footer-buttons {
+      display: flex;
+      gap: 12px;
+      margin-top: 32px;
+      flex-wrap: wrap;
+    }
+
+    .footer-btn {
+      flex: 1;
+      min-width: 140px;
+      padding: 16px 24px;
+      background: linear-gradient(135deg, #c4a890 0%, #b39780 100%);
+      color: white;
+      border: none;
+      border-radius: 16px;
+      font-size: 15px;
+      font-weight: 500;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      text-decoration: none;
+      text-align: center;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      box-shadow: 0 4px 12px rgba(196, 168, 144, 0.3);
+    }
+
+    .footer-btn:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 6px 20px rgba(196, 168, 144, 0.4);
+      background: linear-gradient(135deg, #b39780 0%, #a38670 100%);
+    }
+
+    @media (max-width: 640px) {
+      .header h1 {
+        font-size: 26px;
+      }
+
+      .menu-grid {
+        grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
+        gap: 12px;
+      }
+
+      .tab-btn {
+        min-width: 80px;
+        padding: 12px 16px;
+        font-size: 14px;
+      }
+
+      .footer-buttons {
+        flex-direction: column;
+      }
+
+      .footer-btn {
+        width: 100%;
+      }
+    }
+  </style>
+  <style>@view-transition { navigation: auto; }</style>
+  <script src="/_sdk/data_sdk.js" type="text/javascript"></script>
+  <script src="https://cdn.tailwindcss.com" type="text/javascript"></script>
+ </head>
+ <body>
+  <div class="app-container">
+   <header class="header">
+    <h1 id="store-name">SANMU 三木</h1>
+    <p>澎湖 - 島嶼飲室 - 療癒小店</p>
+   </header>
+   <nav class="tab-navigation" role="navigation" aria-label="主選單">
+     <button class="tab-btn active" data-target="pricing" onclick="switchTab('pricing')" aria-label="切換到價目表頁面">💰 價目表</button> 
+     <button class="tab-btn" data-target="rules" onclick="switchTab('rules')" aria-label="切換到用餐須知頁面">📋 用餐須知</button> 
+     <button class="tab-btn" data-target="qa" onclick="switchTab('qa')" aria-label="切換到常見問題頁面">❓ 常見問題</button>
+   </nav>
+   <main>
+    <div id="pricing" class="tab-content active">
+     <section class="menu-section">
+      <h2 class="section-title"><span class="section-icon">🥣</span> 優格碗類</h2>
+      <div class="menu-grid">
+       <article class="menu-item">
+        <div class="menu-item-name">
+         海島莓果能量碗
+        </div>
+        <div class="menu-item-price">
+         NT$ 150
+        </div>
+       </article>
+... (truncated for brevity in this API call)
+    <script>
+      function switchTab(target) {
+          document.querySelectorAll('.tab-content').forEach(tab => {
+              tab.classList.remove('active');
+          });
+          document.getElementById(target).classList.add('active');
+          document.querySelectorAll('.tab-btn').forEach(btn => {
+              btn.classList.remove('active');
+          });
+          document.querySelector(`.tab-btn[data-target="${target}"]`).classList.add('active');
+      }
+    </script>
+   </main>
+   <footer class="footer-buttons">
+     <a class="footer-btn" href="#">與我們聯絡</a>
+     <a class="footer-btn" href="#">回到首頁</a>
+   </footer>
+  </div>
+ </body>
+</html>
