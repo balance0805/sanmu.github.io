@@ -1,0 +1,658 @@
+<!doctype html>
+<html lang="zh-TW">
+ <head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>飲品資訊</title>
+  <script src="/_sdk/element_sdk.js"></script>
+  <style>
+    body {
+      box-sizing: border-box;
+    }
+    
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    html, body {
+      height: 100%;
+    }
+
+    body {
+      font-family: 'Noto Sans TC', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+      background: linear-gradient(135deg, #f5f1ed 0%, #ede6e0 100%);
+      color: #5a4a3a;
+      width: 100%;
+      min-height: 100%;
+      overflow-x: hidden;
+    }
+
+    .app-container {
+      width: 100%;
+      min-height: 100%;
+      padding: 24px 16px;
+    }
+
+    .header {
+      text-align: center;
+      padding: 32px 20px;
+      background: rgba(255, 255, 255, 0.6);
+      backdrop-filter: blur(10px);
+      border-radius: 24px;
+      margin-bottom: 24px;
+      box-shadow: 0 4px 20px rgba(139, 115, 95, 0.08);
+    }
+
+    .header h1 {
+      font-size: 32px;
+      font-weight: 600;
+      color: #8b7360;
+      margin-bottom: 8px;
+      letter-spacing: 2px;
+    }
+
+    .header p {
+      font-size: 15px;
+      color: #a89383;
+      font-weight: 300;
+      letter-spacing: 1px;
+    }
+
+    .tab-navigation {
+      display: flex;
+      gap: 12px;
+      margin-bottom: 24px;
+      overflow-x: auto;
+      padding: 4px;
+      scrollbar-width: none;
+      /* 優化：加入黏性定位，往下滑時選單會固定在上方 */
+      position: sticky;
+      top: 10px;
+      z-index: 50;
+      background: rgba(245, 241, 237, 0.9);
+      border-radius: 16px;
+      backdrop-filter: blur(5px);
+    }
+
+    .tab-navigation::-webkit-scrollbar {
+      display: none;
+    }
+
+    .tab-btn {
+      flex: 1;
+      min-width: 100px;
+      padding: 14px 20px;
+      background: rgba(255, 255, 255, 0.7);
+      border: 2px solid transparent;
+      border-radius: 16px;
+      color: #8b7360;
+      font-size: 15px;
+      font-weight: 500;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      white-space: nowrap;
+    }
+
+    .tab-btn:hover {
+      background: rgba(255, 255, 255, 0.9);
+      transform: translateY(-2px);
+    }
+
+    .tab-btn.active {
+      background: #c4a890;
+      color: white;
+      border-color: #c4a890;
+      box-shadow: 0 4px 12px rgba(196, 168, 144, 0.3);
+    }
+
+    .tab-content {
+      display: none;
+      animation: fadeIn 0.4s ease;
+    }
+
+    .tab-content.active {
+      display: block;
+    }
+
+    @keyframes fadeIn {
+      from {
+        opacity: 0;
+        transform: translateY(10px);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    .menu-section {
+      background: rgba(255, 255, 255, 0.8);
+      border-radius: 20px;
+      padding: 28px;
+      margin-bottom: 20px;
+      box-shadow: 0 4px 16px rgba(139, 115, 95, 0.1);
+    }
+
+    .section-title {
+      font-size: 22px;
+      font-weight: 600;
+      color: #8b7360;
+      margin-bottom: 20px;
+      padding-bottom: 12px;
+      border-bottom: 2px solid #e8ddd4;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .section-icon {
+      font-size: 24px;
+    }
+
+    .menu-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
+      gap: 16px;
+    }
+
+    .menu-item {
+      background: linear-gradient(135deg, #faf8f6 0%, #f5f1ed 100%);
+      padding: 20px 16px;
+      border-radius: 16px;
+      text-align: center;
+      transition: all 0.3s ease;
+      border: 1px solid rgba(196, 168, 144, 0.15);
+    }
+
+    .menu-item:hover {
+      transform: translateY(-4px);
+      box-shadow: 0 8px 20px rgba(139, 115, 95, 0.15);
+      border-color: #c4a890;
+    }
+
+    .menu-item-name {
+      font-size: 16px;
+      color: #5a4a3a;
+      font-weight: 500;
+      margin-bottom: 8px;
+    }
+
+    .menu-item-price {
+      font-size: 18px;
+      color: #c4a890;
+      font-weight: 600;
+    }
+
+    .info-card {
+      background: rgba(255, 255, 255, 0.8);
+      border-radius: 20px;
+      padding: 28px;
+      margin-bottom: 20px;
+      box-shadow: 0 4px 16px rgba(139, 115, 95, 0.1);
+    }
+
+    .info-card h3 {
+      font-size: 20px;
+      color: #8b7360;
+      margin-bottom: 16px;
+      font-weight: 600;
+    }
+
+    .info-card p, .info-card li {
+      font-size: 15px;
+      line-height: 1.8;
+      color: #6a5a4a;
+      margin-bottom: 12px;
+    }
+
+    .info-card ul {
+      list-style: none;
+      padding-left: 0;
+    }
+
+    .info-card li::before {
+      content: "・";
+      color: #c4a890;
+      font-weight: bold;
+      margin-right: 8px;
+    }
+
+    .qa-item {
+      background: linear-gradient(135deg, #faf8f6 0%, #f5f1ed 100%);
+      border-radius: 16px;
+      padding: 20px;
+      margin-bottom: 16px;
+      border-left: 4px solid #c4a890;
+    }
+
+    .qa-question {
+      font-size: 16px;
+      font-weight: 600;
+      color: #8b7360;
+      margin-bottom: 10px;
+    }
+
+    .qa-answer {
+      font-size: 15px;
+      color: #6a5a4a;
+      line-height: 1.7;
+    }
+
+    .footer-buttons {
+      display: flex;
+      gap: 12px;
+      margin-top: 32px;
+      flex-wrap: wrap;
+    }
+
+    .footer-btn {
+      flex: 1;
+      min-width: 140px;
+      padding: 16px 24px;
+      background: linear-gradient(135deg, #c4a890 0%, #b39780 100%);
+      color: white;
+      border: none;
+      border-radius: 16px;
+      font-size: 15px;
+      font-weight: 500;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      text-decoration: none;
+      text-align: center;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      box-shadow: 0 4px 12px rgba(196, 168, 144, 0.3);
+    }
+
+    .footer-btn:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 6px 20px rgba(196, 168, 144, 0.4);
+      background: linear-gradient(135deg, #b39780 0%, #a38670 100%);
+    }
+
+    @media (max-width: 640px) {
+      .header h1 {
+        font-size: 26px;
+      }
+
+      .menu-grid {
+        grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
+        gap: 12px;
+      }
+
+      .tab-btn {
+        min-width: 80px;
+        padding: 12px 16px;
+        font-size: 14px;
+      }
+
+      .footer-buttons {
+        flex-direction: column;
+      }
+
+      .footer-btn {
+        width: 100%;
+      }
+    }
+  </style>
+  <style>@view-transition { navigation: auto; }</style>
+  <script src="/_sdk/data_sdk.js" type="text/javascript"></script>
+  <script src="https://cdn.tailwindcss.com" type="text/javascript"></script>
+ </head>
+ <body>
+  <div class="app-container">
+   <header class="header">
+    <h1 id="store-name">SANMU 三木</h1>
+    <p>澎湖 - 島嶼飲室 - 療癒小店</p>
+   </header>
+   <nav class="tab-navigation" role="navigation" aria-label="主選單">
+     <button class="tab-btn active" data-target="pricing" onclick="switchTab('pricing')" aria-label="切換到價目表頁面">💰 價目表</button> 
+     <button class="tab-btn" data-target="rules" onclick="switchTab('rules')" aria-label="切換到用餐須知頁面">📋 用餐須知</button> 
+     <button class="tab-btn" data-target="qa" onclick="switchTab('qa')" aria-label="切換到常見問題頁面">❓ 常見問題</button>
+   </nav>
+   <main>
+    <div id="pricing" class="tab-content active">
+     <section class="menu-section">
+      <h2 class="section-title"><span class="section-icon">🥣</span> 優格碗類</h2>
+      <div class="menu-grid">
+       <article class="menu-item">
+        <div class="menu-item-name">
+         海島莓果能量碗
+        </div>
+        <div class="menu-item-price">
+         NT$ 150
+        </div>
+       </article>
+       <article class="menu-item">
+        <div class="menu-item-name">
+         粉紅夕陽碗
+        </div>
+        <div class="menu-item-price">
+         NT$ 150
+        </div>
+       </article>
+       <article class="menu-item">
+        <div class="menu-item-name">
+         濃郁可可碗
+        </div>
+        <div class="menu-item-price">
+         NT$ 150
+        </div>
+       </article>
+      </div>
+     </section>
+     <section class="menu-section">
+      <h2 class="section-title"><span class="section-icon">🥤</span> 飲料類</h2>
+      <div class="menu-grid">
+       <article class="menu-item">
+        <div class="menu-item-name">
+         莓果優酪飲
+        </div>
+        <div class="menu-item-price">
+         NT$ 130
+        </div>
+       </article>
+       <article class="menu-item">
+        <div class="menu-item-name">
+         可可鮮奶
+        </div>
+        <div class="menu-item-price">
+         NT$ 120
+        </div>
+       </article>
+       <article class="menu-item">
+        <div class="menu-item-name">
+         熱可可
+        </div>
+        <div class="menu-item-price">
+         NT$ 130
+        </div>
+       </article>
+       <article class="menu-item">
+        <div class="menu-item-name">
+         抹茶鮮奶
+        </div>
+        <div class="menu-item-price">
+         NT$ 120
+        </div>
+       </article>
+       <article class="menu-item">
+        <div class="menu-item-name">
+         熱抹茶
+        </div>
+        <div class="menu-item-price">
+         NT$ 130
+        </div>
+       </article>
+       <article class="menu-item">
+        <div class="menu-item-name">
+         桑葚鮮奶
+        </div>
+        <div class="menu-item-price">
+         NT$ 120
+        </div>
+       </article>
+       <article class="menu-item">
+        <div class="menu-item-name">
+         鍋煮鮮奶茶
+        </div>
+        <div class="menu-item-price">
+         NT$ 130
+        </div>
+       </article>
+       <article class="menu-item">
+        <div class="menu-item-name">
+         桑葚果粒冰茶
+        </div>
+        <div class="menu-item-price">
+         NT$ 100
+        </div>
+       </article>
+       <article class="menu-item">
+        <div class="menu-item-name">
+         水果氣泡水
+        </div>
+        <div class="menu-item-price">
+         NT$ 120
+        </div>
+       </article>
+       <article class="menu-item">
+        <div class="menu-item-name">
+         梅汁氣泡水
+        </div>
+        <div class="menu-item-price">
+         NT$ 100
+        </div>
+       </article>
+       <article class="menu-item">
+        <div class="menu-item-name">
+         抹茶檸檬氣泡水
+        </div>
+        <div class="menu-item-price">
+         NT$ 120
+        </div>
+       </article>
+      </div>
+     </section>
+     <section class="menu-section">
+      <h2 class="section-title"><span class="section-icon">🍷</span> 酒精類</h2>
+      <div class="menu-grid">
+       <article class="menu-item">
+        <div class="menu-item-name">
+         柚香 SODA
+        </div>
+        <div class="menu-item-price">
+         NT$ 100
+        </div>
+       </article>
+       <article class="menu-item">
+        <div class="menu-item-name">
+         梅酒 SODA
+        </div>
+        <div class="menu-item-price">
+         NT$ 100
+        </div>
+       </article>
+       <article class="menu-item">
+        <div class="menu-item-name">
+         大人味西西里
+        </div>
+        <div class="menu-item-price">
+         NT$ 200
+        </div>
+       </article>
+       <article class="menu-item">
+        <div class="menu-item-name">
+         Double 威士忌梅酒
+        </div>
+        <div class="menu-item-price">
+         NT$ 200
+        </div>
+       </article>
+       <article class="menu-item">
+        <div class="menu-item-name">
+         綠茶梅酒
+        </div>
+        <div class="menu-item-price">
+         NT$ 150
+        </div>
+       </article>
+       <article class="menu-item">
+        <div class="menu-item-name">
+         紅茶梅酒
+        </div>
+        <div class="menu-item-price">
+         NT$ 150
+        </div>
+       </article>
+       <article class="menu-item">
+        <div class="menu-item-name">
+         茉荔酒
+        </div>
+        <div class="menu-item-price">
+         NT$ 150
+        </div>
+       </article>
+      </div>
+     </section>
+    </div>
+    <div id="rules" class="tab-content">
+     <article class="info-card">
+      <h3>⏰ 營業時間</h3>
+      <p>用餐時間 14:00 – 21:30<br>
+       最後點餐時間：21:00</p>
+     </article>
+     <article class="info-card">
+      <h3>🍽️ 點餐須知</h3>
+      <p style="margin-bottom: 0;">選好餐點請至櫃檯點餐結帳。</p>
+     </article>
+     <article class="info-card">
+      <h3>👥 低消規定</h3>
+      <p style="margin-bottom: 0;">每人低消一份餐點或飲品，六歲以下兒童不在此限</p>
+     </article>
+     <article class="info-card">
+      <h3>⏱️ 用餐時間</h3>
+      <p style="margin-bottom: 0;">客滿時用餐時間限制 90 分鐘，未客滿可自由續坐</p>
+     </article>
+     <article class="info-card">
+      <h3>📋 其他須知</h3>
+      <ul>
+       <li>店內全面禁菸</li>
+       <li>禁止攜帶外食及飲品</li>
+       <li>請愛惜店內環境與設施</li>
+       <li>若有特殊飲食需求，請事先告知</li>
+       <li>為維持舒適的氛圍，請放低音量，避免大聲喧嘩</li>
+       <li>孩童若一同入店，請家長協助照顧，避免奔跑或影響到他人</li>
+      </ul>
+     </article>
+    </div>
+    <div id="qa" class="tab-content">
+     <article class="qa-item">
+      <div class="qa-question">
+       Q: 可以訂位嗎?
+      </div>
+      <div class="qa-answer">
+       A: 目前不接受訂位，採現場候位制。建議非尖峰時段前來,可減少等待時間。
+      </div>
+     </article>
+     <article class="qa-item">
+      <div class="qa-question">
+       Q: 飲料可以調整甜度和冰塊嗎?
+      </div>
+      <div class="qa-answer">
+       A: 冰塊可以調整~
+      </div>
+     </article>
+     <article class="qa-item">
+      <div class="qa-question">
+       Q: 有提供素食選項嗎?
+      </div>
+      <div class="qa-answer">
+       A: 優格碗和大部分飲品都是素食友善的。如有特殊飲食需求,請告知店員,我們會盡力協助。
+      </div>
+     </article>
+     <article class="qa-item">
+      <div class="qa-question">
+       Q: 可以外帶嗎?
+      </div>
+      <div class="qa-answer">
+       A: 部分品項無法外帶!外帶恕不提供內用餐具,若需環保杯環保碗自備可折扣 5 元。
+      </div>
+     </article>
+     <article class="qa-item">
+      <div class="qa-question">
+       Q: 停車方便嗎?
+      </div>
+      <div class="qa-answer">
+       A: 店門口有機車停車格,汽車可停附近公有停車場,步行約 1 分鐘。
+      </div>
+     </article>
+     <article class="qa-item">
+      <div class="qa-question">
+       Q: 有會員優惠嗎?
+      </div>
+      <div class="qa-answer">
+       A: 歡迎追蹤我們的 Instagram 和 LINE 官方帳號,不定期會有限時優惠和新品情報!
+      </div>
+     </article>
+    </div>
+   </main>
+   <footer class="footer-buttons"><button class="footer-btn" onclick="switchTab('pricing')" aria-label="返回價目表"> 💰 返回價目表 </button> <a id="instagram-btn" href="https://www.instagram.com/sanmu_dw57?igsh=MTRwbGJqNHU1Z2dlcQ==" target="_blank" rel="noopener noreferrer" class="footer-btn" aria-label="前往 Instagram"> 📷 Instagram </a> <a id="line-btn" href="https://line.me" target="_blank" rel="noopener noreferrer" class="footer-btn" aria-label="前往 LINE"> 💬 LINE </a>
+   </footer>
+  </div>
+  <script>
+    const defaultConfig = {
+      store_name: 'SANMU 三木',
+      instagram_link: 'https://www.instagram.com/sanmu_dw57?igsh=MTRwbGJqNHU1Z2dlcQ==',
+      line_link: 'https://line.me'
+    };
+
+    function switchTab(tabName) {
+      const tabs = document.querySelectorAll('.tab-content');
+      const buttons = document.querySelectorAll('.tab-btn');
+      
+      tabs.forEach(tab => {
+        tab.classList.remove('active');
+      });
+      
+      buttons.forEach(btn => {
+        btn.classList.remove('active');
+      });
+      
+      document.getElementById(tabName).classList.add('active');
+      
+      // 使用 data-target 來查找按鈕，更穩定
+      const activeButton = document.querySelector(`.tab-btn[data-target="${tabName}"]`);
+      if (activeButton) {
+        activeButton.classList.add('active');
+      } else {
+        // Fallback for footer button or if data-target is missing
+        const fallbackBtn = Array.from(buttons).find(btn => 
+           btn.getAttribute('onclick').includes(tabName) && !btn.classList.contains('active')
+        );
+        if(fallbackBtn) fallbackBtn.classList.add('active');
+      }
+    }
+
+    async function onConfigChange(config) {
+      const storeName = config.store_name || defaultConfig.store_name;
+      const instagramLink = config.instagram_link || defaultConfig.instagram_link;
+      const lineLink = config.line_link || defaultConfig.line_link;
+
+      document.getElementById('store-name').textContent = storeName;
+      document.getElementById('instagram-btn').href = instagramLink;
+      document.getElementById('line-btn').href = lineLink;
+    }
+
+    function mapToCapabilities(config) {
+      return {
+        recolorables: [],
+        borderables: [],
+        fontEditable: undefined,
+        fontSizeable: undefined
+      };
+    }
+
+    function mapToEditPanelValues(config) {
+      return new Map([
+        ['store_name', config.store_name || defaultConfig.store_name],
+        ['instagram_link', config.instagram_link || defaultConfig.instagram_link],
+        ['line_link', config.line_link || defaultConfig.line_link]
+      ]);
+    }
+
+    if (window.elementSdk) {
+      window.elementSdk.init({
+        defaultConfig,
+        onConfigChange,
+        mapToCapabilities,
+        mapToEditPanelValues
+      });
+    }
+  </script>
+ </body>
+</html>
